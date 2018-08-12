@@ -50,26 +50,31 @@ client.loop_start()
 # http request
 
 def sendTemperature():
-    if last_temp != {}:
-        data = {
-            'temperature': str(ast.literal_eval(last_temp)[0]),
-            'pression': str(ast.literal_eval(last_temp)[1])
-        }
+    try:
+        print("sending temperature " + str(last_temp))
 
-        req = urllib.request.Request(http_server + 'temperature/' + str(node_id))
-        req.add_header('Content-Type', 'application/json; charset=utf-8')
-        jsondata = json.dumps(data)
-        print(jsondata)
-        jsondataasbytes = jsondata.encode('utf-8')  # needs to be bytes
-        req.add_header('Content-Length', len(jsondataasbytes))
-        response = urllib.request.urlopen(req, jsondataasbytes)
-    else:
-        print("no temp data : skip this loop")
+        if last_temp != {}:
+            data = {
+                'temperature': str(ast.literal_eval(last_temp)[0]),
+                'pression': str(ast.literal_eval(last_temp)[1])
+            }
+
+            req = urllib.request.Request(http_server + 'temperature/' + str(node_id))
+            req.add_header('Content-Type', 'application/json; charset=utf-8')
+            jsondata = json.dumps(data)
+            print(jsondata)
+            jsondataasbytes = jsondata.encode('utf-8')  # needs to be bytes
+            req.add_header('Content-Length', len(jsondataasbytes))
+            response = urllib.request.urlopen(req, jsondataasbytes)
+        else:
+            print("no temp data : skip this loop")
+    except Exception as e:
+        print('Error while sending temperature data ' + type(e).__name__ + "-" + str(e))
 
 
 def sendlocalization():
     try:
-        print("sending localisation " + last_gps)
+        print("sending localisation " + str(last_gps))
         if last_gps != {}:
             # ['05', 47.216233, -1.549436, 'N', 'W', 50.7, 'M']
             data = {
