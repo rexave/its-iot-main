@@ -1,12 +1,15 @@
 #!/usr/bin/python
+import os
 import time
 
 import paho.mqtt.client as mqtt
-from picamera import PiCamera
 
+from picamera import PiCamera
 
 Broker = "localhost"
 topic_gps = "sensors/gps"
+
+dir_home = "/home/pi/camera/photos/"  # with trailing slash !
 
 last_gps = {}
 
@@ -43,11 +46,18 @@ def on_message(client, userdata, msg):
 camera = PiCamera()
 camera.resolution = (2592, 1944)
 
+current_time = time.localtime(time.time())
+dir_name = (str(current_time[0]) + "-" + str(current_time[1]) + "-" + str(current_time[2]) + "_" +
+            str(current_time[3]) + "-" + str(current_time[4]))
+print("creating sub directory " + str(dir_name))
+try:
+    os.stat(dir_home + dir_name)
+except:
+    os.mkdir(dir_home + dir_name)
+
 i = 1
 while True:
     time.sleep(2)
-    camera.capture('/home/pi/camera/photos/image%s.jpg' % i)
-    #exit(0)
+    camera.capture(dir_home + dir_name + '/image%s.jpg' % i)
+    # exit(0)
     i += 1
-
-
