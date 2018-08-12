@@ -142,18 +142,12 @@ def createMessage(gps, temp):
 
 
 while True:
-    time.sleep(15 * 60)
+    time.sleep(5 * 60)
     if last_gps == {}:
         print("No GPS data to send, will try next loop")
         continue
-    print("Sending data")
     message = createMessage(last_gps, last_temp)
-    print("data : " + message)
-
-    message2 = "42 3c e8 ff bf d0 17 87 CC D0 1C"
-    print("message2 : " + message2)
-
-    # exit(0)
+    print("Sending data : " + message)
 
     # Initialisation
     try:
