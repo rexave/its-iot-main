@@ -10,7 +10,7 @@ Broker = "localhost"
 topic_gps = "sensors/gps"
 
 dir_home = "/home/pi/camera/photos/"  # with trailing slash !
-frequence = 2  # in seconds
+frequence = 5  # in seconds
 
 last_gps = {}
 
