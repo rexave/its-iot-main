@@ -10,6 +10,7 @@ Broker = "localhost"
 topic_gps = "sensors/gps"
 
 dir_home = "/home/pi/camera/photos/"  # with trailing slash !
+frequence = 2  # in seconds
 
 last_gps = {}
 
@@ -56,8 +57,22 @@ except:
     os.mkdir(dir_home + dir_name)
 
 i = 1
+
+
+def check_free_storage():
+    statvfs = os.statvfs("/home/pi")
+    Gb_free_on_storage = statvfs.f_bsize * statvfs.f_bavail / 1024 / 1024 / 1024
+    if Gb_free_on_storage < 2:
+        print("insufficent free storage : " + str(Gb_free_on_storage) + " Gb")
+        print("exiting to protect the system")
+        exit(0)
+
+
 while True:
-    time.sleep(2)
-    camera.capture(dir_home + dir_name + '/image%s.jpg' % i)
-    # exit(0)
+    time.sleep(frequence)
+    camera.capture(dir_home + dir_name + '/image%05d.jpg' % i)
+
+    if i % 10 == 0:
+        check_free_storage()
+
     i += 1
