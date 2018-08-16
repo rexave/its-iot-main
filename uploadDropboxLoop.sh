@@ -2,6 +2,7 @@
 
 while true
 do
-        /home/pi/dropboxUploader/uploadLastPicture.sh
-        sleep 30
+    sudo pkill curl
+    /home/pi/dropboxUploader/uploadLastPicture.sh
+    sleep 30
 done

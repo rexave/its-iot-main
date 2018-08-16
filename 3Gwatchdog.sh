@@ -10,6 +10,7 @@ do
         echo ------------------------------
         echo `date` [ERROR] 3G lost
         echo try to reconnect
+        sudo pkill curl
         sudo pkill wvdial
         sudo wvdial 3gconnect&
         sleep 90
