@@ -2,6 +2,7 @@
 
 while true
 do
+    sleep 300
     ping -c 5 -I ppp0 google.com > /tmp/wvdialchecker
     RC=`grep "64 bytes from" /tmp/wvdialchecker | wc -l`
     if [ $RC -eq 0 ];
@@ -16,5 +17,4 @@ do
         /home/pi/config_3G.sh &
         echo ------------------------------
     fi
-    sleep 300
 done
