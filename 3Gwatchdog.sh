@@ -8,13 +8,14 @@ do
     if [ $RC -eq 0 ];
     then
         echo ------------------------------
-        echo 3G lost at
-        date
+        echo `date` [ERROR] 3G lost
         echo try to reconnect
         sudo pkill wvdial
         sudo wvdial 3gconnect&
         sleep 90
         /home/pi/config_3G.sh &
         echo ------------------------------
+    else
+        echo `date` [INFO]  google reachable
     fi
 done
