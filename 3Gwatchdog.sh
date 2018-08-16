@@ -3,7 +3,7 @@
 while true
 do
     ping -c 5 -I ppp0 google.com > /tmp/wvdialchecker
-    RC=`grep "5 received" /tmp/wvdialchecker | wc -l`
+    RC=`grep "64 bytes from" /tmp/wvdialchecker | wc -l`
     if [ $RC -eq 0 ];
     then
         echo ------------------------------
