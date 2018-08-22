@@ -6,8 +6,16 @@ import paho.mqtt.client as mqtt
 
 from picamera import PiCamera
 
+#################################################"
+# Common functions
+#################################################"
+filename = "/home/pi/136-cloud-odyssey/common_functions.py"
+exec(open(filename).read())
 
+
+#################################################"
 # Global variables
+#################################################"
 dir_home = "/home/pi/camera/photos/"  # with trailing slash !
 frequence = 5  # in seconds
 
@@ -21,7 +29,7 @@ file_name = (str(current_time[0]) + "-" + str(current_time[1]) + "-" + str(curre
             str(current_time[3]) + "-" + str(current_time[4]) + "-" + str(current_time[5]))
 
 # Create directory if not existing
-print("creating directory " + str(dir_home))
+log("creating directory " + str(dir_home))
 try:
     os.stat(dir_home)
 except:
@@ -35,8 +43,8 @@ def check_free_storage():
     statvfs = os.statvfs("/home/pi")
     Gb_free_on_storage = statvfs.f_bsize * statvfs.f_bavail / 1024 / 1024 / 1024
     if Gb_free_on_storage < 2:
-        print("insufficent free storage : " + str(Gb_free_on_storage) + " Gb")
-        print("exiting to protect the system")
+        log("insufficent free storage : " + str(Gb_free_on_storage) + " Gb")
+        log("exiting to protect the system")
         exit(0)
 
 
