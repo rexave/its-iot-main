@@ -17,7 +17,7 @@ while true
 do
 	log "Kill all remaining curl processes and start a new uploadLastPicture process" 
 	sudo pkill curl
-	/home/pi/dropboxUploader/uploadLastPicture.sh
+	/home/pi/136-cloud-odyssey/uploadLastPicture.sh
 	sleep 30
 done
 

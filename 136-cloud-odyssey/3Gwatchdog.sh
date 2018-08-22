@@ -32,9 +32,9 @@ do
         log "try to reconnect"
         sudo pkill curl
         sudo pkill wvdial
-        sudo wvdial 3gconnect&
+        sudo wvdial 3gconnect & 2>&1
         sleep 90
-        /home/pi/config_3G.sh &
+        /home/pi/136-cloud-odyssey/config_3G.sh & 2>&1
         log "------------------------------"
     else
         log "[INFO]  google reachable"

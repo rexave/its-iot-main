@@ -22,7 +22,7 @@ do
     then
         log "[ERROR] mqtt-data-logger not found, relaunching it"
         cd /home/pi/mqtt-data-logger/
-        python3 mqtt-data-logger.py -b localhost -t sensors/tempo -t -t sensors/gps > ~/mqtt-data-logger.log 2>&1 &
+        python3 mqtt-data-logger.py -b localhost -t sensors/tempo -t -t sensors/gps > ~/LOG/mqtt-data-logger.log 2>&1 &
     else
         log "[INFO] mqtt-data-logger present"
     fi
