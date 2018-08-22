@@ -43,13 +43,13 @@ function init_named_log() {
 	# Check for existing .log file
 	if [[ -f ${vl_namedLogFile} ]]
 	then
-		# Rename existing .log file to .log.0000 with an incremental number
+		# Rename existing .log file to .log.000001 with an incremental number
 		vl_num=0
-		printf -v vl_seq "%04d" ${vl_num}
+		printf -v vl_seq "%06d" ${vl_num}
 		while [[ -f ${vl_namedLogFile}.${vl_seq} ]]
 		do
 			vl_num=$((vl_num+1))
-			printf -v vl_seq "%04d" ${vl_num}
+			printf -v vl_seq "%06d" ${vl_num}
 		done
 		# Move original log file to the next available number
 		mv ${vl_namedLogFile} ${vl_namedLogFile}.${vl_seq}

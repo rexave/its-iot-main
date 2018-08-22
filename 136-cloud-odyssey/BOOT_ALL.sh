@@ -33,7 +33,7 @@ log "Script start"
 if [[ 0 -eq $(mypgrep "mqtt2http.py") ]]
 then
 	log "No mqtt2http.py process found, relaunching"
-	init_named_log mqtt2http.log
+	init_named_log mqtt2http
 	python3 ~/mqtt2http/mqtt2http.py > ~/LOG/mqtt2http.log 2>&1 &
 fi
 
@@ -66,7 +66,7 @@ if [[ 0 -eq $(mypgrep "camera_manager.py") ]]
 then
 	log "No camera_manager process found, relaunching"
 	init_named_log camera_manager
-	python3 ~/camera/camera_manager.py > ~/LOG/camera_manager.log 2>&1 &
+	python3 ~/136-cloud-odyssey/camera_manager.py > ~/LOG/camera_manager.log 2>&1 &
 fi
 
 # Send MQTT to File
