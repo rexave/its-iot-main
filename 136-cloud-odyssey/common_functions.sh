@@ -67,6 +67,6 @@ function init_log() {
 }
 
 function mypgrep() {
-	echo $(ps -ef | grep $* | grep -v grep | wc -l)
+	echo $(ps -ef | grep $* | grep -v grep | grep -v vim | wc -l)
 }
 
