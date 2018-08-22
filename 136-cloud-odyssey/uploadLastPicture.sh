@@ -16,7 +16,7 @@ log "Script start"
 PICTUREFOLDER=/home/pi/camera/photos
 
 # Try to send ALL unsent files until now
-for filename in $(ls -t $PICTUREFOLDER/*.jpg 2>&/dev/null) ; do
+for filename in $(ls -t $PICTUREFOLDER/*.jpg &2>/dev/null) ; do
 	log "Uploading : " ${filename}
 
 	# Capture and log result
