@@ -34,7 +34,7 @@ if [[ 0 -eq $(mypgrep "mqtt2http.py") ]]
 then
 	log "No mqtt2http.py process found, relaunching"
 	init_named_log mqtt2http
-	python3 ~/mqtt2http/mqtt2http.py > ~/LOG/mqtt2http.log 2>&1 &
+	python3 ~/136-cloud-odyssey/mqtt2http.py > ~/LOG/mqtt2http.log 2>&1 &
 fi
 
 # Thermometer Reader
@@ -42,7 +42,7 @@ if [[ 0 -eq $(mypgrep "read_bmp280_with_mqtt.py") ]]
 then
 	log "No read_bmp280_with_mqtt.py process found, relaunching"
 	init_named_log read_bmp280_with_mqtt
-	python3 ~/sondes/tempo2mqtt/read_bmp280_with_mqtt.py > ~/LOG/read_bmp280_with_mqtt.log 2>&1 &
+	python3 ~/136-cloud-odyssey/read_bmp280_with_mqtt.py > ~/LOG/read_bmp280_with_mqtt.log 2>&1 &
 fi
 
 # GPS Reader
@@ -50,7 +50,7 @@ if [[ 0 -eq $(mypgrep "gps_reader_scan_port_with_mqtt.py") ]]
 then
 	log "No gps_reader_scan_port_with_mqtt.py process found, relaunching"
 	init_named_log gps_reader_scan_port_with_mqtt
-	python3 ~/sondes/gps/gps_reader_scan_port_with_mqtt.py > ~/LOG/gps_reader_scan_port_with_mqtt.log 2>&1 &
+	python3 ~/136-cloud-odyssey/gps_reader_scan_port_with_mqtt.py > ~/LOG/gps_reader_scan_port_with_mqtt.log 2>&1 &
 fi
 
 # Send MQTT to Sigfox
@@ -58,7 +58,7 @@ if [[ 0 -eq $(mypgrep "mqtt2sigfox.py") ]]
 then
 	log "No mqtt2sigfox.py process found, relaunching"
 	init_named_log mqtt2sigfox
-	python3 ~/mqtt2sigfox/mqtt2sigfox.py > ~/LOG/mqtt2sigfox.log 2>&1 &
+	python3 ~/136-cloud-odyssey/mqtt2sigfox.py > ~/LOG/mqtt2sigfox.log 2>&1 &
 fi
 
 # Camera manager

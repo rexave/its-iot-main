@@ -9,6 +9,7 @@ import serial
 
 sigfoxModemPort = '/dev/ttyAMA0'
 
+# Broker = "192.168.0.165"
 Broker = "localhost"
 topic_temp = "sensors/tempo"
 topic_gps = "sensors/gps"
@@ -17,29 +18,36 @@ last_gps = {}
 last_temp = {}
 
 
+#################################################"
+# Common functions
+#################################################"
+filename = "/home/pi/136-cloud-odyssey/common_functions.py"
+exec(open(filename).read())
+
+
 #### MQTT flavor
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
+    log("Connected with result code " + str(rc))
     # client.subscribe(sub_topic)
 
 
 def on_message(client, userdata, msg):
     global last_gps
     global last_temp
-    # print("recieved  " + str(msg))
+    # log("recieved  " + str(msg))
 
     topic = msg.topic
     message = str(msg.payload.decode("utf-8", "ignore"))
     if topic == topic_temp:
-        # print("updating last_temp [" + str(last_temp) + "} ")
+        # log("updating last_temp [" + str(last_temp) + "} ")
         last_temp = message
-        # print("new last_temp [" + str(last_temp) + "} ")
+        # log("new last_temp [" + str(last_temp) + "} ")
 
     elif topic == topic_gps:
-        # print("updating last_gps [" + str(last_gps) + "} ")
+        # log("updating last_gps [" + str(last_gps) + "} ")
         last_gps = message
-        # print("new last_gps [" + str(last_gps) + "} ")
+        # log("new last_gps [" + str(last_gps) + "} ")
 
 
 client = mqtt.Client()
@@ -85,9 +93,9 @@ def transfert(send, true, false):
 
 # Commands
 def sendMsg(msg):
-    print('Sending message...')
+    log('Sending message...')
     if transfert("AT$SS={0}\r".format(msg), 'OK', 'ERROR'):
-        print('OK!')
+        log('OK!')
         return 0
     else:
         sys.stderr.write('Sending failed!\n')
@@ -95,15 +103,15 @@ def sendMsg(msg):
 
 
 def returnTemperature():
-    print('Request temperature...')
+    log('Request temperature...')
     data = transfert('ATI26', 'OK', 'ERROR')
     if data == '':
         sys.stderr.write('ERROR: No reply!\n')
         return 1
     else:
         lists = data.split("\r\n");
-        print
-        '{}C'.format(lists.pop(0))
+	# TODO : verifier pourquoi il y avait un retour a la ligne ici auparavant
+        log('{}C'.format(lists.pop(0)))
         return 0
 
 
@@ -113,7 +121,7 @@ def float_to_hex(f):
 
 # latitude::float:32 longitude::float:32 temperature::int:8 altitude::uint:16
 def createMessage(gps, temp):
-    # gps = ['03', 47.216233, -1.549436, 'N', 'W', 57.4, 'M']
+    # gps = ['03', 47.214291, -1.5702985, 'N', 'W', 57.4, 'M']
     # nbSatelites = ast.literal_eval(gps)[0]
     latitude = ast.literal_eval(gps)[1]
     longitude = ast.literal_eval(gps)[2]
@@ -136,18 +144,24 @@ def createMessage(gps, temp):
     return message_string.upper()
 
 
-# last_gps = "['05', 47.216233, -1.549436, 'N', 'W', 24.4, 'M']"
-# last_gps = "['03', 47.216233, -1.549436, 'N', 'W', -1.2, 'M']"
+# last_gps = "['05', 47.21379983333333, -1.5690243333333334, 'N', 'W', 24.4, 'M']"
+# last_gps = "['03', 47.214161, -1.5687033333333333, 'N', 'W', -1.2, 'M']"
 # last_temp = "[28.4783203125, 1016.4662189272158]"
 
 
 while True:
-    time.sleep(5 * 60)
+    time.sleep(15 * 60)
     if last_gps == {}:
-        print("No GPS data to send, will try next loop")
+        log("No GPS data to send, will try next loop")
         continue
+    log("Sending data")
     message = createMessage(last_gps, last_temp)
-    print("Sending data : " + message)
+    log("data : " + message)
+
+    message2 = "42 3c e8 ff bf d0 17 87 CC D0 1C"
+    log("message2 : " + message2)
+
+    # exit(0)
 
     # Initialisation
     try:

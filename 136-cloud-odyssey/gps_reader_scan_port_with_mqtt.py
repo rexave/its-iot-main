@@ -13,6 +13,13 @@ pub_topic = "sensors/gps"  # send messages to this topic
 # port = "/dev/ttyUSB3"  # the serial port to which the pi is connected.
 
 
+#################################################"
+# Common functions
+#################################################"
+filename = "/home/pi/136-cloud-odyssey/common_functions.py"
+exec(open(filename).read())
+
+
 def _scan_ports():
     if sys.platform.startswith('win'):
         ports = ['COM%s' % (i + 1) for i in range(256)]
@@ -39,14 +46,14 @@ while True:
             while True:
                 ports = _scan_ports()
                 if len(ports) == 0:
-                    print('No ports found, waiting 10 seconds...press Ctrl-C to quit...\n')
+                    log('No ports found, waiting 10 seconds...press Ctrl-C to quit...\n')
                     time.sleep(10)
                     continue
 
                 try:
                     for port in ports:
                         # try to open serial port
-                        print('Trying port [' + port + "]")
+                        log('Trying port [' + port + "]")
                         ser = serial.Serial(port,
                                             baudrate=9600,
                                             timeout=0.5,
@@ -62,19 +69,19 @@ while True:
                             serialFound = True
                             break
                         except Exception as e:
-                            print('Error reading serial port ' + type(e).__name__ + "-" + str(e))
+                            log('Error reading serial port ' + type(e).__name__ + "-" + str(e))
                             ser.close()
                     if serialFound:
-                        print("Suitable serial port found !")
+                        log("Suitable serial port found !")
                         break
                 except Exception as e:
-                    print('Error on initialization ' + type(e).__name__ + "-" + str(e))
+                    log('Error on initialization ' + type(e).__name__ + "-" + str(e))
                     time.sleep(1)
 
-                print('Scanned all ports, waiting 10 seconds...press Ctrl-C to quit...\n')
+                log('Scanned all ports, waiting 10 seconds...press Ctrl-C to quit...\n')
                 time.sleep(10)
         except KeyboardInterrupt:
-            print('Ctrl-C pressed, exiting port scanner\n')
+            log('Ctrl-C pressed, exiting port scanner\n')
             exit(1)
 
         while 1:
@@ -82,14 +89,14 @@ while True:
                 data = ser.readline()
                 break
             except:
-                print("opening serial port ...")
+                log("opening serial port ...")
                 time.sleep(0.5)
 
 
         ############### MQTT section ##################
 
         def on_connect(client, userdata, flags, rc):
-            print("Connected with result code " + str(rc))
+            log("Connected with result code " + str(rc))
             # client.subscribe(sub_topic)
 
 
@@ -101,15 +108,15 @@ while True:
         while 1:
             try:
                 data = ser.readline().decode('utf-8')
-                # print("data: " + str(data))
+                # log("data: " + str(data))
                 if data[0:6] == '$GPGGA':  # the long and lat data are always contained in the GPGGA string of the NMEA data
 
                     nmeaobj = pynmea2.parse(data)
-                    # print(nmeaobj)
-                    print("num_sats:" + nmeaobj.num_sats)
-                    print("position (latitude,longitude):" + str(nmeaobj.latitude) + "," + str(nmeaobj.longitude))
-                    print("direction (lat_dir,lon_dir):" + nmeaobj.lat_dir + "," + nmeaobj.lon_dir)
-                    print("altitude (altitude,altitude_units):" + str(nmeaobj.altitude) + " " + nmeaobj.altitude_units)
+                    # log(nmeaobj)
+                    log("num_sats:" + nmeaobj.num_sats)
+                    log("position (latitude,longitude):" + str(nmeaobj.latitude) + "," + str(nmeaobj.longitude))
+                    log("direction (lat_dir,lon_dir):" + nmeaobj.lat_dir + "," + nmeaobj.lon_dir)
+                    log("altitude (altitude,altitude_units):" + str(nmeaobj.altitude) + " " + nmeaobj.altitude_units)
                     sensor_data = [nmeaobj.num_sats,
                                    nmeaobj.latitude,
                                    nmeaobj.longitude,
@@ -120,16 +127,16 @@ while True:
                     if nmeaobj.longitude != 0:
                         client.publish(pub_topic, str(sensor_data))
                     # else:
-                    #     print("Mesure omise car nulle")
+                    #     log("Mesure omise car nulle")
 
                     time.sleep(0.5)  # wait a little before picking the next data.
             except Exception as e:
-                print(e)
-                print("Closing serial...")
+                log(e)
+                log("Closing serial...")
                 ser.close()
-                print("serial closed! Break loop and restart")
+                log("serial closed! Break loop and restart")
                 break
     except Exception as e:
-        print('Error on main loop ' + type(e).__name__ + "-" + str(e))
-        print("wait 30s and retry from scratch ...")
+        log('Error on main loop ' + type(e).__name__ + "-" + str(e))
+        log("wait 30s and retry from scratch ...")
         time.sleep(30)
