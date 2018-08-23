@@ -17,7 +17,7 @@ PICTUREFOLDER=/home/pi/camera/photos
 
 # Try to send ALL unsent files until now
 for filename in $(ls -t $PICTUREFOLDER/*.jpg &2>/dev/null) ; do
-	log "Uploading : " ${filename}
+	#log "Uploading : " ${filename}
 
 	# Capture and log result
 	vl_result=$(/home/pi/dropboxUploader/dropbox_uploader.sh upload ${filename} $(basename ${filename}) && mv ${filename} ${filename}".sent")

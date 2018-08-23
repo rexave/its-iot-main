@@ -49,6 +49,7 @@ def on_message(client, userdata, msg):
         last_gps = message
         # log("new last_gps [" + str(last_gps) + "} ")
 
+log("Program start")
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -150,9 +151,9 @@ def createMessage(gps, temp):
 
 
 while True:
-    time.sleep(15 * 60)
     if last_gps == {}:
         log("No GPS data to send, will try next loop")
+        time.sleep(15 * 60)
         continue
     log("Sending data")
     message = createMessage(last_gps, last_temp)
@@ -187,3 +188,4 @@ while True:
     ret = sendMsg(message)
 
     serialFd.close()
+    time.sleep(15 * 60)

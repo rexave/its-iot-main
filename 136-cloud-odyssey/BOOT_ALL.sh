@@ -14,7 +14,7 @@
 init_log
 
 
-init_named_log lostlines.log
+init_named_log lostlines
 # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
 exec > >(tee -i ~/LOG/lostlines.log)
 
