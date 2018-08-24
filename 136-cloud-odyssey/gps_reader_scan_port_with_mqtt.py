@@ -52,25 +52,29 @@ while True:
 
                 try:
                     for port in ports:
-                        # try to open serial port
-                        log('Trying port [' + port + "]")
-                        ser = serial.Serial(port,
+                        try:
+                            # try to open serial port
+                            log('Trying port [' + port + "]")
+                            ser = serial.Serial(port,
                                             baudrate=9600,
                                             timeout=0.5,
                                             rtscts=True,
                                             dsrdtr=True)
-                        try:
-                            # try to read a line of data from the serial port and parse
-                            # 'warm up' with reading some input
-                            for i in range(10):
-                                ser.readline()
-                            # try to parse (will throw an exception if input is not valid NMEA)
-                            pynmea2.parse(ser.readline().decode('utf-8', errors='replace'))
-                            serialFound = True
-                            break
+                            try:
+                                # try to read a line of data from the serial port and parse
+                                # 'warm up' with reading some input
+                                for i in range(10):
+                                    ser.readline()
+                                # try to parse (will throw an exception if input is not valid NMEA)
+                                pynmea2.parse(ser.readline().decode('utf-8', errors='replace'))
+                                serialFound = True
+                                continue
+                            except Exception as e:
+                                log('Error reading serial port ' + type(e).__name__ + "-" + str(e))
+                                ser.close()
                         except Exception as e:
-                            log('Error reading serial port ' + type(e).__name__ + "-" + str(e))
-                            ser.close()
+                            log('Error opening serial port ' + type(e).__name__ + "-" + str(e))
+
                     if serialFound:
                         log("Suitable serial port found !")
                         break
