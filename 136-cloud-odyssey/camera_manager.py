@@ -12,6 +12,7 @@ from picamera import PiCamera
 filename = "/home/pi/136-cloud-odyssey/common_functions.py"
 exec(open(filename).read())
 
+log("Script start")
 
 #################################################"
 # Global variables
@@ -21,12 +22,9 @@ frequence = 5  # in seconds
 
 camera = PiCamera()
 camera.resolution = (2592, 1944)
-
-
-# Prepare timestamp for file names
-current_time = time.localtime(time.time())
-file_name = (str(current_time[0]) + "-" + str(current_time[1]) + "-" + str(current_time[2]) + "_" +
-            str(current_time[3]) + "-" + str(current_time[4]) + "-" + str(current_time[5]))
+camera.exposure_mode = 'antishake'
+camera.flash_mode = 'off'
+camera.rotation = 180
 
 # Create directory if not existing
 log("creating directory " + str(dir_home))
@@ -47,13 +45,23 @@ def check_free_storage():
         log("exiting to protect the system")
         exit(0)
 
+log("Begin loop")
 
 # Main loop
 while True:
     time.sleep(frequence)
-    camera.capture(dir_home + '/image_' + file_name + '_%05d.jpg' % i)
 
+    # Change timestamp for each photo
+    current_time = time.localtime(time.time())
+    # Year-Month-Day_Hour-Minutes-Seconds
+    file_name = (str(current_time[0]) + "-" + str(current_time[1]).zfill(2) + "-" + str(current_time[2]).zfill(2) + "_" +
+            str(current_time[3]).zfill(2) + "-" + str(current_time[4]).zfill(2) + "-" + str(current_time[5]).zfill(2) )
+
+    camera.capture(dir_home + '/image_' + file_name + '_%05d.jpg' % i)
+    log("Photo saved " + dir_home + '/image_' + file_name + '_%05d.jpg' % i)
+	
     if i % 10 == 0:
         check_free_storage()
 
     i += 1
+
