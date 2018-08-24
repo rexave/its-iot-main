@@ -7,8 +7,9 @@ import time
 #################################################"
 def log(message):
     current_time = time.localtime(time.time())
-    timestamp = (str(current_time[0]) + "-" + str(current_time[1]) + "-" + str(current_time[2]) + " | " +
-                str(current_time[3]) + "-" + str(current_time[4]) + "-" + str(current_time[5]))
+    # Year-Month-Day | Hour:Minutes:Seconds
+    timestamp = (str(current_time[0]) + "-" + str(current_time[1]).zfill(2) + "-" + str(current_time[2]).zfill(2) + " | " +
+                str(current_time[3]).zfill(2) + ":" + str(current_time[4]).zfill(2) + ":" + str(current_time[5]).zfill(2) )
     print(timestamp + " | " + os.path.basename(__file__) + " | " + message)
 
 
