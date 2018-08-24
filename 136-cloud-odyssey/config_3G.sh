@@ -18,17 +18,13 @@ init_log
 # Start script
 log "Script start"
 
+# Delete home ethernet route if exists
+sudo route del -net 0.0.0.0 gw 192.168.0.1 netmask 0.0.0.0 eth0 2>/dev/null
+# Delete Sopra routes if exists
+sudo route del -net 0.0.0.0 gw  172.22.0.1  netmask 0.0.0.0 eth0 2>/dev/null
+sudo route del -net 172.22.0.0 gw  0.0.0.0  netmask 255.255.0.0  eth0 2>/dev/null
+sudo route del -net 172.17.15.52  gw   172.22.0.1   netmask 255.255.255.255 eth0 2>/dev/null
 
-sudo route add default gw 10.64.64.64 || log "Error in route add default gw"
-# Deletes all DNS information for this interface
-(sudo resolvconf -f -d ppp0.*) || log "Error in resolvconf -d ppp0"
-# Deletes all DNS information for this interface
-(sudo resolvconf -f -d wwan0.*) || log "Error in resolvconf -d wwan0"
-sleep 5
-# Adds new DNS servers
-(echo "dns-nameservers 8.8.8.8" | sudo resolvconf -a ppp0) || log "Error in resolvconf -a ppp0"
-# Adds new DNS servers
-(echo "dns-nameservers 8.8.8.8" | sudo resolvconf -a wwan0) || log "Error in resolvconf -a wwan0"
-
+#sudo route add default gw 10.64.64.64 ppp0 || log "Error in route add default gw"
 
 log "End script"

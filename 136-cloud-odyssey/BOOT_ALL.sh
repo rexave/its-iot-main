@@ -29,12 +29,15 @@ exec 2>&1
 # Start script
 log "Script start"
 
+# Initial configuration of 3G
+~/136-cloud-odyssey/config_3G.sh 
+
 # Send MQTT to HTTP
 if [[ 0 -eq $(mypgrep "mqtt2http.py") ]]
 then
 	log "No mqtt2http.py process found, relaunching"
 	init_named_log mqtt2http
-	python3 ~/136-cloud-odyssey/mqtt2http.py > ~/LOG/mqtt2http.log 2>&1 &
+	python3 -u ~/136-cloud-odyssey/mqtt2http.py > ~/LOG/mqtt2http.log 2>&1 &
 fi
 
 # Thermometer Reader
@@ -42,7 +45,7 @@ if [[ 0 -eq $(mypgrep "read_bmp280_with_mqtt.py") ]]
 then
 	log "No read_bmp280_with_mqtt.py process found, relaunching"
 	init_named_log read_bmp280_with_mqtt
-	python3 ~/136-cloud-odyssey/read_bmp280_with_mqtt.py > ~/LOG/read_bmp280_with_mqtt.log 2>&1 &
+	python3 -u ~/136-cloud-odyssey/read_bmp280_with_mqtt.py > ~/LOG/read_bmp280_with_mqtt.log 2>&1 &
 fi
 
 # GPS Reader
@@ -50,7 +53,7 @@ if [[ 0 -eq $(mypgrep "gps_reader_scan_port_with_mqtt.py") ]]
 then
 	log "No gps_reader_scan_port_with_mqtt.py process found, relaunching"
 	init_named_log gps_reader_scan_port_with_mqtt
-	python3 ~/136-cloud-odyssey/gps_reader_scan_port_with_mqtt.py > ~/LOG/gps_reader_scan_port_with_mqtt.log 2>&1 &
+	python3 -u ~/136-cloud-odyssey/gps_reader_scan_port_with_mqtt.py > ~/LOG/gps_reader_scan_port_with_mqtt.log 2>&1 &
 fi
 
 # Send MQTT to Sigfox
@@ -58,7 +61,7 @@ if [[ 0 -eq $(mypgrep "mqtt2sigfox.py") ]]
 then
 	log "No mqtt2sigfox.py process found, relaunching"
 	init_named_log mqtt2sigfox
-	python3 ~/136-cloud-odyssey/mqtt2sigfox.py > ~/LOG/mqtt2sigfox.log 2>&1 &
+	python3 -u ~/136-cloud-odyssey/mqtt2sigfox.py > ~/LOG/mqtt2sigfox.log 2>&1 &
 fi
 
 # Camera manager
@@ -66,7 +69,7 @@ if [[ 0 -eq $(mypgrep "camera_manager.py") ]]
 then
 	log "No camera_manager process found, relaunching"
 	init_named_log camera_manager
-	python3 ~/136-cloud-odyssey/camera_manager.py > ~/LOG/camera_manager.log 2>&1 &
+	python3 -u ~/136-cloud-odyssey/camera_manager.py > ~/LOG/camera_manager.log 2>&1 &
 fi
 
 # Send MQTT to File
@@ -78,24 +81,17 @@ then
 fi
 
 # Upload camera to dropbox
-if [[ 0 -eq $(mypgrep "uploadDropboxLoop.sh") ]]
+if [[ 0 -eq $(mypgrep "uploadPictures.sh") ]]
 then
-	log "No uploadDropboxLoop.sh process found, relaunching"
-	#./uploadDropboxLoop.sh  > ~/uploadDropboxLoop.log 2>&1 &
-	~/136-cloud-odyssey/uploadDropboxLoop.sh &
+	log "No uploadPictures.sh process found, relaunching"
+	~/136-cloud-odyssey/uploadPictures.sh &
 fi
 
 # Check and reconfigure 3G network if problem
 if [[ 0 -eq $(mypgrep "3Gwatchdog.sh") ]]
 then
 	log "No 3Gwatchdog.sh process found, relaunching"
-	#./3Gwatchdog.sh > ~/3Gwatchdog.log 2>&1 &
 	~/136-cloud-odyssey/3Gwatchdog.sh &
 fi
-
-# Initial configuration of 3G
-log "Sleep before config 3G"
-sleep 60
-~/136-cloud-odyssey/config_3G.sh 
 
 log "Script end"
