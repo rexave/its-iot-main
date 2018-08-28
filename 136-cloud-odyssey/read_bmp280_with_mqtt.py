@@ -3,6 +3,9 @@ import time
 import board
 import busio
 
+import sys
+
+sys.path.insert(0, '/home/pi/sondes/tempo2mqtt')
 import adafruit_bmp280
 
 import paho.mqtt.client as mqtt
@@ -17,10 +20,17 @@ bmp280 = adafruit_bmp280.Adafruit_BMP280_I2C(i2c)
 bmp280.sea_level_pressure = 1017
 
 
+#################################################"
+# Common functions
+#################################################"
+filename = "/home/pi/136-cloud-odyssey/common_functions.py"
+exec(open(filename).read())
+
+
 ############### MQTT section ##################
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
+    log("Connected with result code " + str(rc))
     # client.subscribe(sub_topic)
 
 
@@ -34,4 +44,5 @@ client.loop_start()
 while True:
     sensor_data = [bmp280.temperature, bmp280.pressure]
     client.publish(pub_topic, str(sensor_data))
-    time.sleep(1)
+    log("Temperature : " + str(sensor_data))
+    time.sleep(5)
