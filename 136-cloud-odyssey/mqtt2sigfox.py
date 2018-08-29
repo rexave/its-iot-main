@@ -9,6 +9,10 @@ import serial
 
 sigfoxModemPort = '/dev/ttyAMA0'
 
+# CONSTANTES TODO : ajuster la valeur qui est positionnee a 15 en DEV
+dureeSleepApresOK = 15
+dureeSleepApresProbleme = 1
+
 # Broker = "192.168.0.165"
 Broker = "localhost"
 topic_temp = "sensors/tempo"
@@ -28,28 +32,28 @@ exec(open(filename).read())
 #### MQTT flavor
 
 def on_connect(client, userdata, flags, rc):
-    log("Connected with result code " + str(rc))
+    logInfo("Connected with result code " + str(rc))
     # client.subscribe(sub_topic)
 
 
 def on_message(client, userdata, msg):
     global last_gps
     global last_temp
-    # log("recieved  " + str(msg))
+    # logDebug("recieved  " + str(msg))
 
     topic = msg.topic
     message = str(msg.payload.decode("utf-8", "ignore"))
     if topic == topic_temp:
-        # log("updating last_temp [" + str(last_temp) + "} ")
+        # logDebug("updating last_temp [" + str(last_temp) + "} ")
         last_temp = message
-        # log("new last_temp [" + str(last_temp) + "} ")
+        # logDebug("new last_temp [" + str(last_temp) + "} ")
 
     elif topic == topic_gps:
-        # log("updating last_gps [" + str(last_gps) + "} ")
+        # logDebug("updating last_gps [" + str(last_gps) + "} ")
         last_gps = message
-        # log("new last_gps [" + str(last_gps) + "} ")
+        # logDebug("new last_gps [" + str(last_gps) + "} ")
 
-log("Program start")
+logNotice("Program start")
 
 client = mqtt.Client()
 client.on_connect = on_connect
@@ -94,26 +98,14 @@ def transfert(send, true, false):
 
 # Commands
 def sendMsg(msg):
-    log('Sending message...')
+    logInfo('Start sending message...')
     if transfert("AT$SS={0}\r".format(msg), 'OK', 'ERROR'):
-        log('OK!')
+        logInfo('End sending message : OK!')
         return 0
     else:
-        sys.stderr.write('Sending failed!\n')
+        #sys.stderr.write('Sending failed!\n')
+        logError('Sending failed!')
         return 1
-
-
-def returnTemperature():
-    log('Request temperature...')
-    data = transfert('ATI26', 'OK', 'ERROR')
-    if data == '':
-        sys.stderr.write('ERROR: No reply!\n')
-        return 1
-    else:
-        lists = data.split("\r\n");
-	# TODO : verifier pourquoi il y avait un retour a la ligne ici auparavant
-        log('{}C'.format(lists.pop(0)))
-        return 0
 
 
 def float_to_hex(f):
@@ -152,17 +144,13 @@ def createMessage(gps, temp):
 
 while True:
     if last_gps == {}:
-        log("No GPS data to send, will try next loop")
-        time.sleep(15 * 60)
+        logNotice("No GPS data to send, will try next loop in a few seconds")
+        # Sleep court si on n'a rien envoyé
+        time.sleep(dureeSleepApresProbleme * 60)
         continue
-    log("Sending data")
+    logInfo("Start main loop with data to send")
     message = createMessage(last_gps, last_temp)
-    log("data : " + message)
-
-    message2 = "42 3c e8 ff bf d0 17 87 CC D0 1C"
-    log("message2 : " + message2)
-
-    # exit(0)
+    logDebug("Data : " + message)
 
     # Initialisation
     try:
@@ -177,15 +165,20 @@ while True:
             rtscts=False
         )
     except serial.SerialException as e:
-        sys.stderr.write("Open device {} failed :\n\t{}\n".format(sigfoxModemPort, e))
-        sys.exit(1)
+        logError("Open device {} failed :\n\t{}\n".format(sigfoxModemPort, e))
+        # Sleep court avant nouvel essai : peut-être un problème lié au froid ?
+        time.sleep(dureeSleepApresProbleme * 60)
+        continue
+        #sys.exit(1)
 
     # Test modem presence & echo disabling
     if not transfert('ATE0', 'OK', 'ERROR'):
-        sys.stderr.write(' ERROR: No reply\n')
+        logError('No reply\n')
         serialFd.close()
 
     ret = sendMsg(message)
 
     serialFd.close()
-    time.sleep(15 * 60)
+    # Sleep long minutes en cas de OK pour respecter le nombre maximum d'envois autorisés par jour
+    time.sleep(dureeSleepApresOK * 60)
+    
