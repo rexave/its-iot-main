@@ -22,26 +22,26 @@ exec(open(filename).read())
 
 
 def on_connect(client, userdata, flags, rc):
-    log("Connected with result code " + str(rc))
+    logInfo("Connected with result code " + str(rc))
     # client.subscribe(sub_topic)
 
 
 def on_message(client, userdata, msg):
     global last_gps
     global last_temp
-    # log("recieved  " + str(msg))
+    # logDebug("recieved  " + str(msg))
 
     topic = msg.topic
     message = str(msg.payload.decode("utf-8", "ignore"))
     if topic == topic_temp:
-        # log("updating last_temp [" + str(last_temp) + "} ")
+        # logDebug("updating last_temp [" + str(last_temp) + "} ")
         last_temp = message
-        log("new last_temp [" + str(last_temp) + "} ")
+        logDebug("new last_temp [" + str(last_temp) + "} ")
 
     elif topic == topic_gps:
-        # log("updating last_gps [" + str(last_gps) + "} ")
+        # logDebug("updating last_gps [" + str(last_gps) + "} ")
         last_gps = message
-        log("new last_gps [" + str(last_gps) + "} ")
+        logDebug("new last_gps [" + str(last_gps) + "} ")
 
 
 client = mqtt.Client()
@@ -57,7 +57,7 @@ client.loop_start()
 
 def sendTemperature():
     try:
-        log("sending temperature " + str(last_temp))
+        logInfo("sending temperature " + str(last_temp))
 
         if last_temp != {}:
             data = {
@@ -68,19 +68,19 @@ def sendTemperature():
             req = urllib.request.Request(http_server + 'temperature/' + str(node_id))
             req.add_header('Content-Type', 'application/json; charset=utf-8')
             jsondata = json.dumps(data)
-            log(jsondata)
+            logDebug(jsondata)
             jsondataasbytes = jsondata.encode('utf-8')  # needs to be bytes
             req.add_header('Content-Length', len(jsondataasbytes))
             response = urllib.request.urlopen(req, jsondataasbytes)
         else:
-            log("no temp data : skip this loop")
+            logInfo("no temp data : skip this loop")
     except Exception as e:
-        log('Error while sending temperature data ' + type(e).__name__ + "-" + str(e))
+        logError('Error while sending temperature data ' + type(e).__name__ + "-" + str(e))
 
 
 def sendlocalization():
     try:
-        log("sending localisation " + str(last_gps))
+        logInfo("sending localisation " + str(last_gps))
 
         if last_gps != {}:
             # ['05', 47.21392083333333, -1.5690008333333334, 'N', 'W', 50.7, 'M']
@@ -96,21 +96,21 @@ def sendlocalization():
             req = urllib.request.Request(http_server + 'localisation/' + str(node_id))
             req.add_header('Content-Type', 'application/json; charset=utf-8')
             jsondata = json.dumps(data)
-            log(jsondata)
+            logDebug(jsondata)
             jsondataasbytes = jsondata.encode('utf-8')  # needs to be bytes
             req.add_header('Content-Length', len(jsondataasbytes))
             response = urllib.request.urlopen(req, jsondataasbytes)
         else:
-            log("no gps data : skip this loop")
+            logInfo("no gps data : skip this loop")
     except Exception as e:
-        log('Error while sending localisation data ' + type(e).__name__ + "-" + str(e))
+        logError('Error while sending localisation data ' + type(e).__name__ + "-" + str(e))
 
 
 
 i = 0
 while True:
     time.sleep(1 * 10)
-    log("Sending data")
+    logInfo("Begin main loop ")
     try:
         sendlocalization()
         i += 1
@@ -119,6 +119,6 @@ while True:
             i = 0
 
     except Exception as e:
-        log('Error while sending data ' + type(e).__name__ + "-" + str(e))
-        log('wait 1min before retry')
+        logError('Error while sending data ' + type(e).__name__ + "-" + str(e))
+        logNotice('wait 1min before retry')
         time.sleep(1 * 60)

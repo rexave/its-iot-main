@@ -7,26 +7,22 @@
 
 # Include common functions
 . ~/136-cloud-odyssey/common_functions.sh
-# Reinitialize log file
-init_log
 
 # Start script
-log "Script start"
+logNotice "Script start"
 
 
 while true
 do
-    ps -x > /tmp/mqtt2fileWatcher
-    RC=`grep "mqtt-data-logger.py" /tmp/mqtt2fileWatcher | wc -l`
+    RC=$(ps -x | grep "mqtt-data-logger.py" | grep -v grep | wc -l)
     if [ $RC -eq 0 ];
     then
-        log "[ERROR] mqtt-data-logger not found, relaunching it"
-        cd /home/pi/mqtt-data-logger/
-        python3 -u mqtt-data-logger.py -b localhost -t sensors/tempo -t -t sensors/gps > ~/LOG/mqtt-data-logger.log 2>&1 &
+        logError "mqtt-data-logger not found, relaunching it"
+        python3 -u  /home/pi/mqtt-data-logger/mqtt-data-logger.py -b localhost -t sensors/tempo -t -t sensors/gps 2>&1 &
     else
-        log "[INFO] mqtt-data-logger present"
+        logInfo "mqtt-data-logger present"
     fi
     sleep 60
 done
 
-log "Script end"
+logNotice "Script end"

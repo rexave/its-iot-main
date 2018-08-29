@@ -10,13 +10,12 @@
 
 # Include common functions
 . ~/136-cloud-odyssey/common_functions.sh
-# Reinitialize log file
-init_log
 
+# Reinitialize log file for all programs
+init_named_log iot-main
 
-init_named_log lostlines
 # Redirect stdout ( > ) into a named pipe ( >() ) running "tee"
-exec > >(tee -i ~/LOG/lostlines.log)
+exec > >(tee -i ~/LOG/iot-main.log)
 
 # Without this, only stdout would be captured - i.e. your
 # log file would not contain any error messages.
@@ -25,73 +24,67 @@ exec > >(tee -i ~/LOG/lostlines.log)
 # adding his answer to mine.
 exec 2>&1
 
-
 # Start script
-log "Script start"
+logNotice "Script start - NEW SYSTEM BOOT OR PROFILE CONNECTION"
 
 # Initial configuration of 3G
-~/136-cloud-odyssey/config_3G.sh 
+~/136-cloud-odyssey/config_3G.sh 2>&1
 
 # Send MQTT to HTTP
 if [[ 0 -eq $(mypgrep "mqtt2http.py") ]]
 then
-	log "No mqtt2http.py process found, relaunching"
-	init_named_log mqtt2http
-	python3 -u ~/136-cloud-odyssey/mqtt2http.py > ~/LOG/mqtt2http.log 2>&1 &
+	logInfo "No mqtt2http.py process found, relaunching"
+	python3 -u ~/136-cloud-odyssey/mqtt2http.py 2>&1 &
 fi
 
 # Thermometer Reader
 if [[ 0 -eq $(mypgrep "read_bmp280_with_mqtt.py") ]]
 then
-	log "No read_bmp280_with_mqtt.py process found, relaunching"
-	init_named_log read_bmp280_with_mqtt
-	python3 -u ~/136-cloud-odyssey/read_bmp280_with_mqtt.py > ~/LOG/read_bmp280_with_mqtt.log 2>&1 &
+	logInfo "No read_bmp280_with_mqtt.py process found, relaunching"
+	python3 -u ~/136-cloud-odyssey/read_bmp280_with_mqtt.py 2>&1 &
 fi
 
 # GPS Reader
 if [[ 0 -eq $(mypgrep "gps_reader_scan_port_with_mqtt.py") ]]
 then
-	log "No gps_reader_scan_port_with_mqtt.py process found, relaunching"
-	init_named_log gps_reader_scan_port_with_mqtt
-	python3 -u ~/136-cloud-odyssey/gps_reader_scan_port_with_mqtt.py > ~/LOG/gps_reader_scan_port_with_mqtt.log 2>&1 &
+	logInfo "No gps_reader_scan_port_with_mqtt.py process found, relaunching"
+	python3 -u ~/136-cloud-odyssey/gps_reader_scan_port_with_mqtt.py 2>&1 &
 fi
 
 # Send MQTT to Sigfox
 if [[ 0 -eq $(mypgrep "mqtt2sigfox.py") ]]
 then
-	log "No mqtt2sigfox.py process found, relaunching"
-	init_named_log mqtt2sigfox
-	python3 -u ~/136-cloud-odyssey/mqtt2sigfox.py > ~/LOG/mqtt2sigfox.log 2>&1 &
+	logInfo "No mqtt2sigfox.py process found, relaunching"
+	python3 -u ~/136-cloud-odyssey/mqtt2sigfox.py 2>&1 &
 fi
 
 # Camera manager
 if [[ 0 -eq $(mypgrep "camera_manager.py") ]]
 then
-	log "No camera_manager process found, relaunching"
-	init_named_log camera_manager
-	python3 -u ~/136-cloud-odyssey/camera_manager.py > ~/LOG/camera_manager.log 2>&1 &
+	logInfo "No camera_manager process found, relaunching"
+	python3 -u ~/136-cloud-odyssey/camera_manager.py 2>&1 &
 fi
 
 # Send MQTT to File
 if [[ 0 -eq $(mypgrep "mqtt2fileLoop.sh") ]]
 then
-	log "No mqtt2fileLoop.sh process found, relaunching"
-	#./mqtt2fileLoop.sh > ~/mqtt2fileLoop.log 2>&1 &
-	~/136-cloud-odyssey/mqtt2fileLoop.sh &
+	logInfo "No mqtt2fileLoop.sh process found, relaunching"
+	~/136-cloud-odyssey/mqtt2fileLoop.sh 2>&1 &
 fi
 
 # Upload camera to dropbox
 if [[ 0 -eq $(mypgrep "uploadPictures.sh") ]]
 then
-	log "No uploadPictures.sh process found, relaunching"
-	~/136-cloud-odyssey/uploadPictures.sh &
+	logInfo "No uploadPictures.sh process found, relaunching"
+	~/136-cloud-odyssey/uploadPictures.sh 2>&1 &
 fi
 
 # Check and reconfigure 3G network if problem
 if [[ 0 -eq $(mypgrep "3Gwatchdog.sh") ]]
 then
-	log "No 3Gwatchdog.sh process found, relaunching"
-	~/136-cloud-odyssey/3Gwatchdog.sh &
+	logInfo "No 3Gwatchdog.sh process found, relaunching"
+	~/136-cloud-odyssey/3Gwatchdog.sh 2>&1 &
 fi
 
-log "Script end"
+logNotice "Script end"
+
