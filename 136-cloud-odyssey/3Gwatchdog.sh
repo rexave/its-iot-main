@@ -13,32 +13,23 @@
 
 # Include common functions
 . ~/136-cloud-odyssey/common_functions.sh
-# Reinitialize log file
-init_log
 
 # Start script
-log "Script start"
+logNotice "Script start"
 
 while true
 do
-    sleep 300
-    log "Test ping on google.com"
-    ping -c 5 -I ppp0 google.com > /tmp/wvdialchecker
-    RC=`grep "64 bytes from" /tmp/wvdialchecker | wc -l`
-    if [ $RC -eq 0 ];
+    logInfo "Current default route is $(route | grep '^default' | grep -o '[^ ]*$') : $(ip route ls)"
+    if [[ 0 -eq $((ping -c 5 -I ppp0 google.com | grep "bytes from" | wc -l) 2>/dev/null) ]]
     then
-        log "------------------------------"
-        log "[ERROR] 3G lost"
-        log "try to reconnect"
-        sudo pkill curl
-        sudo pkill wvdial
-        sudo wvdial 3gconnect & 2>&1
+        logError "Connection to google lost - hoping for automatic reconnect."
+	logDebug $(nmcli)
         sleep 90
-        /home/pi/136-cloud-odyssey/config_3G.sh & 2>&1
-        log "------------------------------"
     else
-        log "[INFO]  google reachable"
+        logInfo "Google reachable"
     fi
+
+    sleep 300
 done
 
-log "Script end"
+logNotice "Script end"

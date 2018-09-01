@@ -30,7 +30,7 @@ exec(open(filename).read())
 ############### MQTT section ##################
 
 def on_connect(client, userdata, flags, rc):
-    log("Connected with result code " + str(rc))
+    logInfo("Connected with result code " + str(rc))
     # client.subscribe(sub_topic)
 
 
@@ -44,5 +44,5 @@ client.loop_start()
 while True:
     sensor_data = [bmp280.temperature, bmp280.pressure]
     client.publish(pub_topic, str(sensor_data))
-    log("Temperature : " + str(sensor_data))
+    logDebug("Temperature : " + str(sensor_data))
     time.sleep(5)

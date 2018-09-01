@@ -20,12 +20,33 @@ vg_script=$(basename $0)
 # Example result : 2018-08-22T17:42:01+00:00 | ./BOOT_ALL.sh | Script start
 ################################################################################
 function log() {
-	vl_params=$*
+	vl_level=$1
+	shift
+	vl_message=$*
 	vl_date=$(date +%F" | "%X) 
 	vl_logFile=${vg_logDir}/${vg_script}".log"
 
-	#echo ${vl_date} "|" ${vg_script} "|" ${vl_params} 
-	echo ${vl_date} "|" ${vg_script} "|" ${vl_params} >> ${vl_logFile}
+	echo ${vl_date} "|" ${vg_script} "|" ${vl_level} "|" ${vl_message} 
+}
+
+function logDebug() {
+	log "DEBUG" $*
+}
+
+function logInfo() {
+	log "INFO" $*
+}
+
+function logNotice() {
+	log "NOTICE" $*
+}
+
+function logWarning() {
+	log "WARNING" $*
+}
+
+function logError() {
+	log "ERROR" $*
 }
 
 ################################################################################
@@ -68,5 +89,13 @@ function init_log() {
 
 function mypgrep() {
 	echo $(ps -ef | grep $* | grep -v grep | grep -v vim | wc -l)
+}
+
+function mykill() {
+	for i in $(ps -fu $USER | grep cloud | grep -v grep | awk '{print $2}')
+	do
+		echo "Killing process $(ps -f -q $i)"
+		sudo kill $i
+	done
 }
 
