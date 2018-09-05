@@ -23,6 +23,7 @@ do
     if [[ 0 -eq $((ping -c 5 -I ppp0 google.com | grep "bytes from" | wc -l) 2>/dev/null) ]]
     then
         logError "Connection to google lost - hoping for automatic reconnect."
+	sudo pkill curl
 	logDebug $(nmcli)
         sleep 90
     else
