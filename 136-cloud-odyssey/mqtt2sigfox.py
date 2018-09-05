@@ -6,6 +6,7 @@ import time
 
 import paho.mqtt.client as mqtt
 import serial
+import math
 
 sigfoxModemPort = '/dev/ttyAMA0'
 
@@ -132,7 +133,7 @@ def createMessage(gps, temp):
 
     temperature_hexa = hex(int(temperature) & (2 ** 8 - 1))
 
-    pression_compress = int(int(pression)/5) # pression divisé 5 pour tenir sur 1 octet
+    pression_compress = int(math.ceil(pression/5.0)) # pression divisé 5 pour tenir sur 1 octet : arrondi
     pression_hexa = "{0:#0{1}x}".format(abs(pression_compress), 4)  # format 0x00 soit 2 caracteres de charge utile avec 0 padding
 
     altitude_hexa = "{0:#0{1}x}".format(abs(int(altitude)), 6)  # format 0x0000 soit 4 caracteres de charge utile avec 0 padding
