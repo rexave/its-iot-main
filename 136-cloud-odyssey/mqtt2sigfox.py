@@ -6,11 +6,12 @@ import time
 
 import paho.mqtt.client as mqtt
 import serial
+import math
 
 sigfoxModemPort = '/dev/ttyAMA0'
 
-# CONSTANTES TODO : ajuster la valeur qui est positionnee a 15 en DEV
-dureeSleepApresOK = 15
+# CONSTANTES : Maximum un envoi toutes les 10 minutes avec Sigfox
+dureeSleepApresOK = 10
 dureeSleepApresProbleme = 1
 
 # Broker = "192.168.0.165"
@@ -114,6 +115,7 @@ def float_to_hex(f):
 
 # latitude::float:32 longitude::float:32 temperature::int:8 altitude::uint:16
 def createMessage(gps, temp):
+    logInfo("Start encoding data : gps=" + gps + ", temp=" + temp)
     # gps = ['03', 47.214291, -1.5702985, 'N', 'W', 57.4, 'M']
     # nbSatelites = ast.literal_eval(gps)[0]
     latitude = ast.literal_eval(gps)[1]
@@ -124,16 +126,23 @@ def createMessage(gps, temp):
     # altitudeUnit = ast.literal_eval(gps)[6]
 
     temperature = ast.literal_eval(temp)[0]
+    pression = ast.literal_eval(temp)[1]
 
     latitude_hexa = float_to_hex(latitude)
     longitude_hexa = float_to_hex(longitude)
 
     temperature_hexa = hex(int(temperature) & (2 ** 8 - 1))
-    altitude_hexa = "{0:#0{1}x}".format(abs(int(altitude)), 6)  # 4 caracteres avec 0 padding
 
-    message_hexa = str(latitude_hexa)[2:] + str(longitude_hexa)[2:] + str(temperature_hexa)[2:] + str(altitude_hexa)[2:]
+    pression_compress = int(math.ceil(pression/5.0)) # pression divisé 5 pour tenir sur 1 octet : arrondi
+    pression_hexa = "{0:#0{1}x}".format(abs(pression_compress), 4)  # format 0x00 soit 2 caracteres de charge utile avec 0 padding
+
+    altitude_hexa = "{0:#0{1}x}".format(abs(int(altitude)), 6)  # format 0x0000 soit 4 caracteres de charge utile avec 0 padding
+
+    message_hexa = str(latitude_hexa)[2:] + str(longitude_hexa)[2:] + str(temperature_hexa)[2:] + str(altitude_hexa)[2:] + str(pression_hexa)[2:] # On ignore les 2 premiers caractères correspondant a 0x
+
     message_hexa_coupe_tous_les2_caracteres = [message_hexa[i:i + 2] for i in range(0, len(message_hexa), 2)]
     message_string = ' '.join(message_hexa_coupe_tous_les2_caracteres)
+    logDebug("Encoded data : hexa=" + message_hexa + ", string=" + message_string + ", pression_compress=" + str(pression_compress))
     return message_string.upper()
 
 
@@ -148,9 +157,7 @@ while True:
         # Sleep court si on n'a rien envoyé
         time.sleep(dureeSleepApresProbleme * 60)
         continue
-    logInfo("Start main loop with data to send")
     message = createMessage(last_gps, last_temp)
-    logDebug("Data : " + message)
 
     # Initialisation
     try:
